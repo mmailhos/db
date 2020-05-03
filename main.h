@@ -37,12 +37,26 @@ typedef struct {
     Row row_to_insert; //only used by insert statement
 } Statement;
 
+// the pager accesses the pagge cache adn the file.
+typedef struct {
+    int fd;
+    uint32_t file_length;
+    void* pages[TABLE_MAX_PAGES];
+} Pager;
+
+// the table makes request for pages through the pager
 typedef struct {
     uint32_t num_rows;
-    void* pages[TABLE_MAX_PAGES];
+    Pager* pager;
 } Table;
 
 typedef enum {
     EXECUTE_SUCCESS,
     EXECUTE_TABLE_FULL
 } ExecuteResult;
+
+typedef struct {
+    Table* table;
+    uint32_t row_num;
+    bool end_of_table; // indicates a position one past the last element
+} Cursor;
