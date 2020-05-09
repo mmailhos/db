@@ -41,12 +41,13 @@ typedef struct {
 typedef struct {
     int fd;
     uint32_t file_length;
+    uint32_t num_pages;
     void* pages[TABLE_MAX_PAGES];
 } Pager;
 
 // the table makes request for pages through the pager
 typedef struct {
-    uint32_t num_rows;
+    uint32_t root_page_num;
     Pager* pager;
 } Table;
 
@@ -57,6 +58,16 @@ typedef enum {
 
 typedef struct {
     Table* table;
-    uint32_t row_num;
+    uint32_t page_num;
+    uint32_t cell_num;
     bool end_of_table; // indicates a position one past the last element
 } Cursor;
+
+// each node correspond to one page.
+// Internal nodes point to their children by storing the page number that stores the child
+// the BTree asks the pager for a particular page number and gets back a pointer into the page cache.
+// Pages are stored in the db file one after the other in order of page number
+typedef enum {
+    NODE_INTERNAL,
+    NODE_LEAF
+} NodeType;
